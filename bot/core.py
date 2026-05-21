@@ -19,7 +19,7 @@ def create_bot(config):
     # Register on_message event to handle Pokemon sessions
     @bot.event
     async def on_message(message):
-        if str(message.author.id) in SESSION_MAP and len(message.content.strip().split(" ")) == 1:
+        if str(message.author.id) in SESSION_MAP and len(message.content.strip().split(" ")) == 1 and message.channel.id == 1236106872264724480 and message.content.strip()[0] != "!":
             from bot.commands import process_pokemon_message
             await process_pokemon_message(bot, message, SESSION_MAP, VERSION_MAP)
         
