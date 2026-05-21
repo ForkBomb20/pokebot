@@ -312,7 +312,7 @@ def getEvolutions(species_data):
 
 def getCaptureRate(species_data, poke_data, level, p, ball, status):
     rate = int(species_data["capture_rate"])
-    base = [stat for stat in poke_data["stats"] if stat["name"] == "hp"][0]
+    base = [stat["base_stat"] for stat in poke_data["stats"] if stat["stat"]["name"] == "hp"][0]
     max_hp = floor((2*base*level/100)) + level + 10
     chance = (( 1 + max_hp*(3-2*p) * rate * ball * status) / ( 3 * max_hp )) / 256
 
