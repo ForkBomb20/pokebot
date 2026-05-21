@@ -1,3 +1,8 @@
 .env
 *.egg-info
 *__pycache__
+env/
+venv/
+.venv/
+assets/generated/
+data/sessions.json
