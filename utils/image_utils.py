@@ -2,6 +2,8 @@ import os
 from PIL import Image
 import discord
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def merge_images_vert(file1, file2):
     """Merge two images into one, displayed side by side
     :param file1: path to first image file
@@ -26,14 +28,15 @@ def merge_images_vert(file1, file2):
     return result
 
 def create_type_image(types):
-    output_dir = "assets/generated"
+    output_dir = os.path.join(PROJECT_ROOT, "assets", "generated")
+    panels_dir = os.path.join(PROJECT_ROOT, "assets", "type_panels")
     os.makedirs(output_dir, exist_ok=True)
 
     if len(types) == 2:
-        img = merge_images_vert(f"./assets/type_panels/{types[0]}.gif", f"./assets/type_panels/{types[1]}.gif")
+        img = merge_images_vert(os.path.join(panels_dir, f"{types[0]}.gif"), os.path.join(panels_dir, f"{types[1]}.gif"))
         filename = f"{types[0]}_{types[1]}.png"
     else:
-        img = Image.open(f"./assets/type_panels/{types[0]}.gif").resize((256, 128))
+        img = Image.open(os.path.join(panels_dir, f"{types[0]}.gif")).resize((256, 128))
         filename = f"{types[0]}.png"
 
     output_path = os.path.join(output_dir, filename)
