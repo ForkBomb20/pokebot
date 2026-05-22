@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher
+from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher, move_autocomplete
 from data.damage import (
     compute_stats,
     calculate_move_damage,
@@ -74,6 +74,9 @@ class CalcCog(commands.Cog):
         matches = pokemon_matcher.find_multiple_matches(current, threshold=0.4, max_results=10)
         return [app_commands.Choice(name=m[0], value=m[0].lower()) for m in matches]
 
+    async def _move_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return await move_autocomplete(self.bot, current)
+
     @app_commands.command(name="calc", description="Calculate damage from one Pokemon to another")
     @app_commands.describe(
         attacker="Attacking Pokemon",
@@ -83,7 +86,7 @@ class CalcCog(commands.Cog):
         defender_level="Defender's level (default 50)",
         move="Specific move to calculate (optional, shows all if omitted)",
     )
-    @app_commands.autocomplete(attacker=_pokemon_autocomplete, defender=_pokemon_autocomplete)
+    @app_commands.autocomplete(attacker=_pokemon_autocomplete, defender=_pokemon_autocomplete, move=_move_autocomplete)
     async def calc_slash(self, interaction: discord.Interaction, attacker: str, defender: str, gen: int, attacker_level: int = 50, defender_level: int = 50, move: str = ""):
         await interaction.response.defer()
         atk_name = await resolve_pokemon(interaction, attacker)
@@ -115,7 +118,7 @@ class CalcCog(commands.Cog):
         move1="Specific move for Pokemon 1 (optional)",
         move2="Specific move for Pokemon 2 (optional)",
     )
-    @app_commands.autocomplete(pokemon1=_pokemon_autocomplete, pokemon2=_pokemon_autocomplete)
+    @app_commands.autocomplete(pokemon1=_pokemon_autocomplete, pokemon2=_pokemon_autocomplete, move1=_move_autocomplete, move2=_move_autocomplete)
     async def matchup_slash(self, interaction: discord.Interaction, pokemon1: str, pokemon2: str, gen: int, level1: int = 50, level2: int = 50, move1: str = "", move2: str = ""):
         await interaction.response.defer()
         name1 = await resolve_pokemon(interaction, pokemon1)

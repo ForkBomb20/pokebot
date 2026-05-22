@@ -6,6 +6,34 @@ from data.constants import POKEMON
 
 pokemon_matcher = PokemonFuzzyMatcher(POKEMON)
 
+_move_list_cache: list[str] | None = None
+
+
+async def get_move_list(bot) -> list[str]:
+    global _move_list_cache
+    if _move_list_cache is not None:
+        return _move_list_cache
+
+    async with bot.http_session.get("https://pokeapi.co/api/v2/move?limit=1000") as resp:
+        data = await resp.json()
+        _move_list_cache = [m["name"] for m in data["results"]]
+    return _move_list_cache
+
+
+async def move_autocomplete(bot, current: str) -> list:
+    from discord import app_commands
+    if not current:
+        return []
+    moves = await get_move_list(bot)
+    current_lower = current.lower().replace(" ", "-")
+    matches = [m for m in moves if m.startswith(current_lower)]
+    if len(matches) < 10:
+        matches += [m for m in moves if current_lower in m and m not in matches]
+    return [
+        app_commands.Choice(name=m.replace("-", " ").title(), value=m)
+        for m in matches[:10]
+    ]
+
 
 async def resolve_pokemon(
     destination,
