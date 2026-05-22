@@ -26,6 +26,10 @@ class PokeAPIClient:
     async def get_move(self, url: str) -> dict:
         return await self._get(url)
 
+    async def get_move_by_name(self, name: str) -> dict:
+        name = name.strip().lower()
+        return await self._get(f"{BASE_URL}/move/{name}/")
+
     async def get_type(self, name: str) -> dict:
         name = name.strip().lower()
         return await self._get(f"{BASE_URL}/type/{name}/")

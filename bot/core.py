@@ -45,7 +45,14 @@ class PokeBot(commands.Bot):
     async def on_ready(self):
         print(f"{self.user} has connected to Discord")
         try:
-            synced = await self.tree.sync()
+            guild = discord.Object(id=self.config.get("dev_guild_id")) if self.config.get("dev_guild_id") else None
+            if guild:
+                self.tree.copy_global_to(guild=guild)
+                synced = await self.tree.sync(guild=guild)
+                self.tree.clear_commands(guild=None)
+                await self.tree.sync()
+            else:
+                synced = await self.tree.sync()
             print(f"Synced {len(synced)} slash commands.")
         except Exception as e:
             print(f"Failed to sync commands: {e}")
