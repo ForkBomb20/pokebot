@@ -4,6 +4,13 @@ import aiohttp
 BASE_URL = "https://pokeapi.co/api/v2"
 
 
+class PokeAPIError(Exception):
+    def __init__(self, status: int, url: str):
+        self.status = status
+        self.url = url
+        super().__init__(f"PokeAPI returned {status} for {url}")
+
+
 class PokeAPIClient:
     def __init__(self, session: aiohttp.ClientSession, max_concurrent: int = 10):
         self._session = session
@@ -11,7 +18,9 @@ class PokeAPIClient:
 
     async def _get(self, url: str) -> dict:
         async with self._semaphore:
-            async with self._session.get(url) as resp:
+            async with self._session.get(url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                if resp.status == 404:
+                    raise PokeAPIError(404, url)
                 resp.raise_for_status()
                 return await resp.json()
 

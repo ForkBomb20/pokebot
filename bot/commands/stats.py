@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.helpers import resolve_pokemon, pokemon_matcher
+from bot.helpers import resolve_pokemon, pokemon_matcher, send_response
 from bot.embeds import create_stats_embed
 
 
@@ -40,8 +40,4 @@ class StatsCog(commands.Cog):
         types = await service.get_types(poke_data, 9)
         stats = service.get_base_stats(poke_data)
         embed = create_stats_embed(pokemon, stats, types)
-
-        if isinstance(destination, discord.Interaction):
-            await destination.followup.send(embed=embed)
-        else:
-            await destination.send(embed=embed)
+        await send_response(destination, embed=embed)

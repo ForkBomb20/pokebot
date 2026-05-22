@@ -1,8 +1,9 @@
+import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
 
-from data.api import PokeAPIClient
+from data.api import PokeAPIClient, PokeAPIError
 from data.cache import PokeCache
 from data.service import PokeDataService
 from bot.helpers import resolve_pokemon, get_species_name
@@ -41,6 +42,23 @@ class PokeBot(commands.Bot):
 
         from bot.commands import setup_commands
         await setup_commands(self)
+
+        @self.tree.error
+        async def on_app_command_error(interaction: discord.Interaction, error):
+            original = getattr(error, "original", error)
+            if isinstance(original, PokeAPIError):
+                if original.status == 404:
+                    msg = "Could not find that Pokemon or resource. Check your spelling."
+                else:
+                    msg = "The Pokemon API is currently unavailable. Try again later."
+            elif isinstance(original, asyncio.TimeoutError):
+                msg = "Request timed out. The API may be slow — try again."
+            else:
+                msg = f"Something went wrong: {original}"
+            if interaction.response.is_done():
+                await interaction.followup.send(msg)
+            else:
+                await interaction.response.send_message(msg)
 
     async def on_ready(self):
         print(f"{self.user} has connected to Discord")

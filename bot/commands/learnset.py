@@ -1,9 +1,8 @@
-from typing import Optional
 import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.helpers import resolve_pokemon, pokemon_matcher
+from bot.helpers import resolve_pokemon, pokemon_matcher, send_response
 from bot.views import MovesView, MOVES_PER_PAGE
 from bot.embeds import create_moves_embed
 
@@ -58,11 +57,4 @@ class LearnsetCog(commands.Cog):
             await _send(destination, embed=embed, view=view)
 
 
-async def _send(destination, content=None, **kwargs):
-    if isinstance(destination, discord.Interaction):
-        await destination.followup.send(content, **kwargs)
-    else:
-        if content:
-            await destination.send(content, **kwargs)
-        else:
-            await destination.send(**kwargs)
+_send = send_response

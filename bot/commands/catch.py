@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher
+from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher, send_response
 from data.catch import calculate_catch_rate, ALL_BALLS
 from data.constants import TYPE_COLOR_MAP
 
@@ -113,10 +113,10 @@ class CatchCog(commands.Cog):
         base_catch_rate = int(species_data["capture_rate"])
 
         # Auto-detect type-based conditions
-        if "water" in types or "bug" in types:
-            conditions.add("water" if "water" in types else "bug")
-        if any(t in types for t in ["water", "bug"]):
+        if "water" in types:
             conditions.add("water")
+        if "bug" in types:
+            conditions.add("bug")
 
         # Calculate probability for the specified ball
         prob = calculate_catch_rate(base_catch_rate, float(hp), ball, status, gen, level, conditions)
@@ -175,11 +175,4 @@ class CatchCog(commands.Cog):
         return embed
 
 
-async def _send(destination, content=None, **kwargs):
-    if isinstance(destination, discord.Interaction):
-        await destination.followup.send(content, **kwargs)
-    else:
-        if content:
-            await destination.send(content, **kwargs)
-        else:
-            await destination.send(**kwargs)
+_send = send_response

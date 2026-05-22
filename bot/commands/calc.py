@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher, move_autocomplete
+from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher, move_autocomplete, send_response
 from data.damage import (
     compute_stats,
     calculate_move_damage,
@@ -41,7 +41,6 @@ class CalcCog(commands.Cog):
             return self._gen_charts[gen]
 
         all_type_data = await self._fetch_all_type_data()
-        gen_name = GENERATIONS[gen - 1]
         gen_index = gen - 1
 
         chart = {}
@@ -369,11 +368,4 @@ def _effectiveness_str(eff: float) -> str:
     return "▪️"
 
 
-async def _send(destination, content=None, **kwargs):
-    if isinstance(destination, discord.Interaction):
-        await destination.followup.send(content, **kwargs)
-    else:
-        if content:
-            await destination.send(content, **kwargs)
-        else:
-            await destination.send(**kwargs)
+_send = send_response

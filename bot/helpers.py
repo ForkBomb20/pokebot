@@ -73,12 +73,18 @@ def get_species_name(pokemon: str) -> str:
     return pokemon
 
 
-async def _send(destination, content: str):
-    """Send a message to either an Interaction, Context, or channel."""
+async def send_response(destination, content=None, **kwargs):
     if isinstance(destination, discord.Interaction):
         if destination.response.is_done():
-            await destination.followup.send(content)
+            await destination.followup.send(content, **kwargs)
         else:
-            await destination.response.send_message(content)
+            await destination.response.send_message(content, **kwargs)
     elif hasattr(destination, "send"):
-        await destination.send(content)
+        if content:
+            await destination.send(content, **kwargs)
+        else:
+            await destination.send(**kwargs)
+
+
+async def _send(destination, content: str):
+    await send_response(destination, content)

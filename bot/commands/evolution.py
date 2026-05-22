@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher
+from bot.helpers import resolve_pokemon, get_species_name, pokemon_matcher, send_response
 from bot.embeds import create_evolution_embed
 
 
@@ -46,11 +46,4 @@ class EvolutionCog(commands.Cog):
         await _send(destination, embed=embed)
 
 
-async def _send(destination, content=None, **kwargs):
-    if isinstance(destination, discord.Interaction):
-        await destination.followup.send(content, **kwargs)
-    else:
-        if content:
-            await destination.send(content, **kwargs)
-        else:
-            await destination.send(**kwargs)
+_send = send_response
