@@ -5,6 +5,7 @@ from bot.commands.session import SessionCog
 from bot.commands.stats import StatsCog
 from bot.commands.abilities import AbilitiesCog
 from bot.commands.calc import CalcCog
+from bot.commands.catch import CatchCog
 
 
 async def setup_commands(bot):
@@ -15,3 +16,4 @@ async def setup_commands(bot):
     await bot.add_cog(StatsCog(bot))
     await bot.add_cog(AbilitiesCog(bot))
     await bot.add_cog(CalcCog(bot))
+    await bot.add_cog(CatchCog(bot))
