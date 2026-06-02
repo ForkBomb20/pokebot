@@ -43,8 +43,21 @@ class PokeBot(commands.Bot):
         from bot.commands import setup_commands
         await setup_commands(self)
 
+        bot_channel = self.config.get("bot_channel_id")
+
+        @self.tree.interaction_check
+        async def check_channel(interaction: discord.Interaction) -> bool:
+            if bot_channel and interaction.channel_id != bot_channel:
+                await interaction.response.send_message(
+                    f"Commands only work in <#{bot_channel}>.", ephemeral=True
+                )
+                return False
+            return True
+
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error):
+            if isinstance(error, discord.app_commands.CheckFailure):
+                return
             original = getattr(error, "original", error)
             if isinstance(original, PokeAPIError):
                 if original.status == 404:
@@ -74,15 +87,6 @@ class PokeBot(commands.Bot):
             print(f"Synced {len(synced)} slash commands.")
         except Exception as e:
             print(f"Failed to sync commands: {e}")
-
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        bot_channel = self.config.get("bot_channel_id")
-        if bot_channel and interaction.channel_id != bot_channel:
-            await interaction.response.send_message(
-                f"Commands only work in <#{bot_channel}>.", ephemeral=True
-            )
-            return False
-        return True
 
     async def on_message(self, message: discord.Message):
         if message.author.bot:
