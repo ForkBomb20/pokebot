@@ -75,8 +75,21 @@ class PokeBot(commands.Bot):
         except Exception as e:
             print(f"Failed to sync commands: {e}")
 
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        bot_channel = self.config.get("bot_channel_id")
+        if bot_channel and interaction.channel_id != bot_channel:
+            await interaction.response.send_message(
+                f"Commands only work in <#{bot_channel}>.", ephemeral=True
+            )
+            return False
+        return True
+
     async def on_message(self, message: discord.Message):
         if message.author.bot:
+            return
+
+        bot_channel = self.config.get("bot_channel_id")
+        if bot_channel and message.channel.id != bot_channel:
             return
 
         user_id = str(message.author.id)
